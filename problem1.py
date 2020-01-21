@@ -44,9 +44,8 @@ class Plateau:
         return str((self.x_coord, self.y_coord))
 
     def add_rover_position(self, x, y):
-        if 0 < x < self.x_coord:
-            if 0 < y < self.y_coord:
-                self.grid[self.x_coord - x][self.y_coord - y] = 1
+        if x <= len(self.grid) and y <= len(self.grid):
+            self.grid[self.x_coord - x][y-1] = 1
         else:
             raise ValueError("Movement sequence landing out of grid-zone")
 
@@ -70,42 +69,28 @@ class Rover:
         self.grid.reset()
 
     def change_direction(self, new_direction):
-        if self.direction == "N":
-            if new_direction == "L":
-                self.direction = "W"
-            elif new_direction == "R":
-                self.direction == "E"
-
-        if self.direction == "S":
-            if new_direction == "L":
-                self.direction = "E"
-            elif new_direction == "R":
-                self.direction == "W"
-
-        if self.direction == "E":
-            if new_direction == "L":
-                self.direction = "N"
-            elif new_direction == "R":
-                self.direction == "S"
-
-        if self.direction == "W":
-            if new_direction == "L":
-                self.direction = "S"
-            elif new_direction == "R":
-                self.direction == "N"
+        direction_list = ["N", "E", "S", "W"]
+        current_index = direction_list.index(self.direction)
+        if new_direction == "L":
+            self.direction = direction_list[current_index-1]
+        elif new_direction == "R":
+            self.direction = direction_list[current_index+1]
+            if current_index >= 3:
+                self.direction = direction_list[0]
 
     def take_step(self):
-        self.reset_position()
-        if self.direction == "N":
-            self.x -= 1
-        if self.direction == "S":
+        if self.direction == "N":  
             self.x += 1
+        if self.direction == "S":
+            self.x -= 1
         if self.direction == "E":
             self.y += 1
         if self.direction == "W":
             self.y -= 1
 
+        self.reset_position()
         self.grid.add_rover_position(self.x, self.y)
+
 
     def move(self, sequence):
         if isinstance(sequence, str):
@@ -119,17 +104,17 @@ class Rover:
 
 
 if __name__ == "__main__":
-    grid_input = input().strip().split(" ")
+    grid_input = input("Enter Plateau grid-size:").strip().split(" ")
     if len(grid_input) != 2:
         raise ValueError("Wrong number of arguments for Mars Plateau shape")
     
     rect_grid = Plateau(*grid_input)
 
-    position_input = input().split(" ")
+    position_input = input("Enter rover coordinates:").split(" ")
 
     rover1 = Rover(rect_grid, *position_input)
     print(rover1)
-    movement_input = input().strip()
+    movement_input = input("Enter movement sequence:").strip()
     
     rover1.move(movement_input)
     print(rover1)
